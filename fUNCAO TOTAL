@@ -1,0 +1,155 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMao9SKMvWCzGOW65jwx74K",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Patrick-jose93/ENGENHARIA-DE-SOFTWARE/blob/main/fUNCAO%20TOTAL\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import sqlite3\n",
+        "import datetime\n",
+        "\n",
+        "def criar_tabela():\n",
+        "    \"\"\"Cria a tabela de produtos no banco de dados.\"\"\"\n",
+        "    cursor.execute('''\n",
+        "    CREATE TABLE produtos (\n",
+        "        id INTEGER PRIMARY KEY AUTOINCREMENT,\n",
+        "        nome TEXT NOT NULL,\n",
+        "        categoria TEXT NOT NULL,\n",
+        "        quantidade INTEGER NOT NULL,\n",
+        "        preco REAL,\n",
+        "        data_cadastro DATE,\n",
+        "        localizacao TEXT,\n",
+        "        data_atualizacao DATE\n",
+        "    )\n",
+        "    ''')\n",
+        "\n",
+        "def inserir_produto(nome, categoria, quantidade, preco, localizacao):\n",
+        "    \"\"\"Insere um novo produto no banco de dados.\"\"\"\n",
+        "    data_atual = datetime.date.today()\n",
+        "    cursor.execute(\"INSERT INTO produtos (nome, categoria, quantidade, preco, data_cadastro, localizacao, data_atualizacao) VALUES (?, ?, ?, ?, ?, ?, ?)\",\n",
+        "                  (nome, categoria, quantidade, preco, data_atual, localizacao, data_atual))\n",
+        "    banco.commit()\n",
+        "\n",
+        "def atualizar_quantidade(nome_produto, nova_quantidade):\n",
+        "    \"\"\"Atualiza a quantidade de um produto.\"\"\"\n",
+        "    cursor.execute(\"UPDATE produtos SET quantidade = ? WHERE nome = ?\", (nova_quantidade, nome_produto))\n",
+        "    banco.commit()\n",
+        "\n",
+        "def atualizar_localizacao(nome_produto, nova_localizacao):\n",
+        "    \"\"\"Atualiza a localização de um produto.\"\"\"\n",
+        "    data_atual = datetime.date.today()\n",
+        "    cursor.execute(\"UPDATE produtos SET localizacao = ?, data_atualizacao = ? WHERE nome = ?\", (nova_localizacao, data_atual, nome_produto))\n",
+        "    banco.commit()\n",
+        "\n",
+        "def consultar_produto(nome_produto):\n",
+        "    \"\"\"Consulta um produto pelo nome.\"\"\"\n",
+        "    cursor.execute(\"SELECT * FROM produtos WHERE nome = ?\", (nome_produto,))\n",
+        "    resultado = cursor.fetchone()\n",
+        "    return resultado\n",
+        "\n",
+        "def listar_produtos():\n",
+        "    \"\"\"Lista todos os produtos.\"\"\"\n",
+        "    cursor.execute(\"SELECT * FROM produtos\")\n",
+        "    resultados = cursor.fetchall()\n",
+        "    return resultados\n",
+        "\n",
+        "def gerar_relatorio_estoque_baixo(limite):\n",
+        "    \"\"\"Gera um relatório de produtos com estoque abaixo do limite especificado.\"\"\"\n",
+        "    cursor.execute(\"SELECT * FROM produtos WHERE quantidade < ?\", (limite,))\n",
+        "    resultados = cursor.fetchall()\n",
+        "    return resultados\n",
+        "\n",
+        "def gerar_relatorio_excesso_estoque(limite):\n",
+        "    \"\"\"Gera um relatório de produtos com excesso de estoque.\"\"\"\n",
+        "    cursor.execute(\"SELECT *  FROM produtos WHERE quantidade > ?\", (limite,))\n",
+        "    resultados = cursor.fetchall()\n",
+        "    return resultados\n",
+        "\n",
+        "def gerar_relatorio_movimentacao(data_inicial, data_final):\n",
+        "    \"\"\"Gera um relatório de movimentação de produtos em um determinado período.\"\"\"\n",
+        "    cursor.execute(\"SELECT * FROM produtos WHERE data_atualizacao BETWEEN ? AND ?\", (data_inicial, data_final))\n",
+        "    resultados = cursor.fetchall()\n",
+        "    return resultados\n",
+        "\n",
+        "# Conectando ao banco de dados\n",
+        "banco = sqlite3.connect('DEPOSITO.db')\n",
+        "cursor = banco.cursor()\n",
+        "\n",
+        "# Criando a tabela (caso não exista)\n",
+        "criar_tabela()\n",
+        "\n",
+        "# Exemplo de uso:\n",
+        "# Inserir um novo produto\n",
+        "inserir_produto('Notebook Dell', 'Eletrônicos', 10, 2500.00, 'Depósito Central')\n",
+        "\n",
+        "# Atualizar a quantidade de um produto\n",
+        "atualizar_quantidade('Notebook Dell', 8)\n",
+        "\n",
+        "# Atualizar a localização de um produto\n",
+        "atualizar_localizacao('Notebook Dell', 'Depósito Filial')\n",
+        "\n",
+        "# Consultar um produto\n",
+        "produto = consultar_produto('Notebook Dell')\n",
+        "print(produto)\n",
+        "\n",
+        "# Listar todos os produtos\n",
+        "produtos = listar_produtos()\n",
+        "for produto in produtos:\n",
+        "    print(produto)\n",
+        "\n",
+        "# Gerar relatório de produtos com estoque abaixo de 10 unidades\n",
+        "produtos_estoque_baixo = gerar_relatorio_estoque_baixo(10)\n",
+        "print(\"Produtos com estoque abaixo de 10 unidades:\")\n",
+        "for produto in produtos_estoque_baixo:\n",
+        "    print(produto)\n",
+        "\n",
+        "# Fechando a conexão com o banco de dados\n",
+        "banco.close()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "HuFOQYXSxBTY",
+        "outputId": "3268f10b-052a-4894-c0ab-10fc14257b97"
+      },
+      "execution_count": 2,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "(1, 'Notebook Dell', 'Eletrônicos', 8, 2500.0, '2024-11-05', 'Depósito Filial', '2024-11-05')\n",
+            "(1, 'Notebook Dell', 'Eletrônicos', 8, 2500.0, '2024-11-05', 'Depósito Filial', '2024-11-05')\n",
+            "Produtos com estoque abaixo de 10 unidades:\n",
+            "(1, 'Notebook Dell', 'Eletrônicos', 8, 2500.0, '2024-11-05', 'Depósito Filial', '2024-11-05')\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
