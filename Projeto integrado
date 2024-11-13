@@ -1,0 +1,151 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOje6gDoMnrn4fwMkDD0+bz",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Patrick-jose93/ENGENHARIA-DE-SOFTWARE/blob/main/Projeto%20integrado\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import sqlite3\n",
+        "\n",
+        "banco = sqlite3.connect('DEPOSITO.db')\n",
+        "\n",
+        "cursor = banco.cursor()\n",
+        "\n",
+        "\n",
+        "cursor.execute(''' CREATE TABLE IF NOT EXISTS produtos(\n",
+        "nome text,\n",
+        "  categoria text,\n",
+        "  quantidade integer,\n",
+        "             localizacao text  )''')\n",
+        "\n",
+        "def inserir_produto(nome, categoria, quantidade, localizacao):\n",
+        "      cursor.execute(\"INSERT INTO produtos(nome, categoria, quantidade, localizacao) VALUES (?, ?, ?, ?)\", (nome, categoria, quantidade, localizacao))\n",
+        "      banco.commit()\n",
+        "\n",
+        "#inserir_produto('Notebook Dell', 'Eletrônicos', 10, 'depósito 1')\n",
+        "#inserir_produto('Apple', 'Eletrônicos', 8, 'depósito 2')\n",
+        "#inserir_produto('caderno','escritorio',2,'deposito 3')\n",
+        "#inserir_produto('caneta', 'escritorio',18,'deposito 2' )\n",
+        "\n",
+        "def excluir_produto(nome):\n",
+        "    cursor.execute(\"DELETE FROM produtos WHERE nome=?\", (nome,))\n",
+        "    banco.commit()\n",
+        "\n",
+        "\n",
+        "def buscar_produto(nome):\n",
+        "    cursor.execute(\"SELECT * FROM produtos WHERE nome=?\", (nome,))\n",
+        "    return cursor.fetchone()\n",
+        "\n",
+        "produto_encontrado = buscar_produto(\"\")\n",
+        "\n",
+        "if produto_encontrado:\n",
+        "    print(\"Produto encontrado:\", produto_encontrado)\n",
+        "else:\n",
+        "    print(\"Produto não encontrado.\")\n",
+        "\n",
+        "def estoque_baixo(limite_minimo=3):\n",
+        "\n",
+        "\n",
+        "    cursor.execute(\"SELECT * FROM produtos WHERE quantidade <= ?\", (limite_minimo,))\n",
+        "    resultado = cursor.fetchall()\n",
+        "\n",
+        "\n",
+        "    if resultado:\n",
+        "        print(\"Produtos com estoque baixo:\")\n",
+        "        for produto in resultado:\n",
+        "            print(f\"ID: {produto[0]}, Nome: {produto[1]}, Quantidade: {produto[2]}\")\n",
+        "    else:\n",
+        "        print(\"Não há produtos com estoque abaixo do limite.\")\n",
+        "\n",
+        "    return resultado\n",
+        "\n",
+        "\n",
+        "\n",
+        "#estoque_baixo()\n",
+        "\n",
+        "cursor.execute(\"SELECT * FROM produtos\")\n",
+        "\n",
+        "def produto_excessos(limite_maximo=15):\n",
+        "\n",
+        "    cursor.execute(\"SELECT * FROM produtos WHERE quantidade >= ?\", (limite_maximo,))\n",
+        "    resultado = cursor.fetchall()\n",
+        "\n",
+        "    if resultado:\n",
+        "        print('produto em excesso:')\n",
+        "        for produto in resultado:\n",
+        "            print(f'nome: {produto[0]}, categoria: {produto[1]}, quantidade: {produto[2]}')\n",
+        "    else:\n",
+        "          print('Não a produtos em excesso')\n",
+        "\n",
+        "    return resultado\n",
+        "\n",
+        "cursor.execute('SELECT * FROM produtos')\n",
+        "\n",
+        "\n",
+        "def gerar_relatorio(limite_minimo=3, limite_maximo=15):\n",
+        "\n",
+        "    produtos_baixos = estoque_baixo(limite_minimo)\n",
+        "    produtos_excesso = produto_excessos(limite_maximo)\n",
+        "\n",
+        "    print(\"Produtos com estoque abaixo :\")\n",
+        "    for produto in produtos_baixos:\n",
+        "        print(f\"Nome: {produto[0]}, Categoria: {produto[1]}, Quantidade: {produto[2]}, Localização: {produto[3]}\")\n",
+        "\n",
+        "    print(\"\\nProdutos com excesso de estoque:\")\n",
+        "    for produto in produtos_excesso:\n",
+        "        print(f\"Nome: {produto[0]}, Categoria: {produto[1]}, Quantidade: {produto[2]}, Localização: {produto[3]}\")\n",
+        "\n",
+        "\n",
+        "#gerar_relatorio()\n",
+        "\n",
+        "excluir_produto('caderno')\n",
+        "\n",
+        "print(cursor.fetchall())\n",
+        "\n",
+        "banco.close()"
+      ],
+      "metadata": {
+        "id": "btkqqGbdX5im",
+        "outputId": "76814839-2c5f-438b-8b65-3e59ea563325",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Produto não encontrado.\n",
+            "[]\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
